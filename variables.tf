@@ -44,7 +44,7 @@ variable "external_cidrs" {
 variable "tfe_elk_repo" {
   description = "The repo to clone on to the instance to run/configure ELK (i.e. THIS repo)."
   type        = string
-  default     = "https://github.com/straubt1/tfe-elk.git"
+  default     = "https://github.com/hashicorp/is-tfe-logging.git"
 }
 
 variable "tfe_elk_branch" {
