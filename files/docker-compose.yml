@@ -15,6 +15,7 @@ services:
   # https://www.elastic.co/guide/en/elasticsearch/reference/7.8/docker.html
   elasticsearch:
     container_name: elk-elasticsearch
+    restart: always
     hostname: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
     volumes:
@@ -32,6 +33,8 @@ services:
       - 9200:9200
       - 9300:9300
   fluentd:
+    container_name: elk-fluentd
+    restart: always
     build: ./fluentd
     volumes:
       # Only need one config, setup to listen as fluentd or syslog
