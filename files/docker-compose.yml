@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  # https://www.elastic.co/guide/en/kibana/7.8/docker.html
+  kibana:
+    container_name: elk-kibana
+    image: docker.elastic.co/kibana/kibana:7.8.0
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    links:
+      - elasticsearch
+    ports:
+      - 5601:5601
+
+  # https://www.elastic.co/guide/en/elasticsearch/reference/7.8/docker.html
+  elasticsearch:
+    container_name: elk-elasticsearch
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    volumes:
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    environment:
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 20000
+        hard: 65536
+    ports:
+      - 9200:9200
+      - 9300:9300
+  fluentd:
+    build: ./fluentd
+    volumes:
+      # Only need one config, setup to listen as fluentd or syslog
+      - ./fluentd/conf/syslog.conf:/fluentd/etc/fluent.conf
+      # - ./fluentd/conf/fluentd.conf:/fluentd/etc/fluent.conf
+    links:
+      - "elasticsearch"
+    ports:
+      # Expose ports for both fluentd and syslog endpoints
+      - "5140:5140"
+      - "24224:24224"

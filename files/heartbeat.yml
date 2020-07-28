@@ -1,0 +1,18 @@
+heartbeat.monitors:
+  - type: http
+    name: "Terraform Enterprise - Internal"
+    schedule: "@every 5s"
+    timeout: 5s
+    urls:
+      - https://172.17.0.1/_health_check
+    ssl:
+      verification_mode: none
+
+processors:
+  - add_cloud_metadata: ~
+
+setup.kibana.host: kibana:5601
+output.elasticsearch:
+  hosts: "${ELASTICSEARCH_HOSTS:elasticsearch:9200}"
+  username: "${ELASTICSEARCH_USERNAME:}"
+  password: "${ELASTICSEARCH_PASSWORD:}"
