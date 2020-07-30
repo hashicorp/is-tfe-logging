@@ -2,18 +2,24 @@
     "description": "TFE pipeline",
     "processors": [{
             "drop": {
-                "if": "ctx.ident.contains(\"replicated\") || ctx.ident.contains(\"retraced\")"
+                "if": "ctx.containsKey('ident') ? (ctx.ident.contains(\"replicated\") || ctx.ident.contains(\"retraced\")) : false",
+                "on_failure": [{
+                    "set": {
+                        "field": "pipelineerror",
+                        "value": "Failed dropping field."
+                    }
+                }]
             }
         },
         {
             "script": {
                 "lang": "painless",
-                "source": "\n          if (ctx.message.contains(\"{\") && ctx.message.contains(\"}\")) {\n            def first = ctx.message.indexOf('{');\n            def last = ctx.message.lastIndexOf('}');\n            ctx.json = ctx.message.substring(first, last + 1)\n          }\n        ",
                 "if": "ctx.containsKey('message')",
+                "source": "if (ctx.message.contains(\"{\") && ctx.message.contains(\"}\")) {\n            def first = ctx.message.indexOf('{');\n            def last = ctx.message.lastIndexOf('}');\n            ctx.json = ctx.message.substring(first, last + 1)\n          }",
                 "on_failure": [{
                     "set": {
-                        "field": "error",
-                        "value": "Failed parsing message field while looking for JSON."
+                        "field": "pipelineerror",
+                        "value": "Failed parsing 'message' field while looking for JSON."
                     }
                 }]
             }
@@ -25,8 +31,8 @@
                 "if": "ctx.containsKey('json')",
                 "on_failure": [{
                     "set": {
-                        "field": "error",
-                        "value": "Failed to parse json field."
+                        "field": "pipelineerror",
+                        "value": "Failed to parse 'json' field."
                     }
                 }]
             }
@@ -34,14 +40,14 @@
         {
             "grok": {
                 "field": "message",
-                "if": "ctx.message.contains(\"Finished policy check\")",
+                "if": "ctx.containsKey('message') && ctx.message.contains(\"Finished policy check\")",
                 "pattern_definitions": {
                     "TFEID": "%{WORD}-%{WORD}"
                 },
                 "on_failure": [{
                     "set": {
-                        "field": "grokerror",
-                        "value": "{{ _ingest.on_failure_message }}"
+                        "field": "pipelineerror",
+                        "value": "Grok failed: {{ _ingest.on_failure_message }}"
                     }
                 }],
                 "patterns": [

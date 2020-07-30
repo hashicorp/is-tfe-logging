@@ -222,6 +222,7 @@ No requirements.
 | subnet\_id | The subnet id to create the instance in. | `string` | n/a | yes |
 | tags | Tags to apply to every resource | `map` | `{}` | no |
 | tfe\_elk\_branch | The branch of this repo to clone on to the instance to run/configure ELK. | `string` | `"main"` | no |
+| tfe\_elk\_repo | The repo to clone on to the instance to run/configure ELK (i.e. THIS repo). | `string` | `"https://github.com/hashicorp/is-tfe-logging.git"` | no |
 | vpc\_cidr | CIDR block for PTFE AWS VPC. This is needed for the SG network access into the instance. | `string` | n/a | yes |
 | vpc\_id | Id of the VPC. This is needed for the SG network access into the instance. | `string` | n/a | yes |
 
