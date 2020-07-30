@@ -10,7 +10,13 @@ This will find any container that is associated with replicated specific contain
 ```
 {
   "drop": {
-    "if" : "ctx.ident.contains(\"replicated\") || ctx.ident.contains(\"retraced\")"
+      "if": "ctx.containsKey('ident') ? (ctx.ident.contains(\"replicated\") || ctx.ident.contains(\"retraced\")) : false",
+      "on_failure": [{
+          "set": {
+              "field": "pipelineerror",
+              "value": "Failed dropping field."
+          }
+      }]
   }
 }
 ```
@@ -23,19 +29,17 @@ This will do a rough check of the `message` field to see if there is JSON presen
 
 ```
 {
-  "script": {
-    "lang": "painless",
-    "source": "\n          if (ctx.message.contains(\"{\") && ctx.message.contains(\"}\")) {\n            def first = ctx.message.indexOf('{');\n            def last = ctx.message.lastIndexOf('}');\n            ctx.json = ctx.message.substring(first, last + 1)\n          }\n        ",
-    "if": "ctx.containsKey('message')",
-    "on_failure": [
-      {
-        "set": {
-          "field": "jsonerror",
-          "value": "Failed parsing message field while looking for JSON."
-        }
-      }
-    ]
-  }
+    "script": {
+        "lang": "painless",
+        "if": "ctx.containsKey('message')",
+        "source": "if (ctx.message.contains(\"{\") && ctx.message.contains(\"}\")) {\n            def first = ctx.message.indexOf('{');\n            def last = ctx.message.lastIndexOf('}');\n            ctx.json = ctx.message.substring(first, last + 1)\n          }",
+        "on_failure": [{
+            "set": {
+                "field": "pipelineerror",
+                "value": "Failed parsing 'message' field while looking for JSON."
+            }
+        }]
+    }
 }
 ```
 
@@ -45,19 +49,17 @@ If the `json` field is present from the previous processor, parse it and bubble 
 
 ```
 {
-  "json": {
-    "field": "json",
-    "add_to_root": true,
-    "if": "ctx.containsKey('json')",
-    "on_failure": [
-      {
-        "set": {
-          "field": "jsonerror",
-          "value": "Failed to parse json field."
-        }
-      }
-    ]
-  }
+    "json": {
+        "field": "json",
+        "add_to_root": true,
+        "if": "ctx.containsKey('json')",
+        "on_failure": [{
+            "set": {
+                "field": "pipelineerror",
+                "value": "Failed to parse 'json' field."
+            }
+        }]
+    }
 }
 ```
 
@@ -67,85 +69,25 @@ Look for sentinel pattern and create fields.
 
 ```
 {
-  "grok": {
-    "field": "message",
-    "if": "ctx.message.contains(\"Finished policy check\")",
-    "on_failure": [
-      {
-        "set": {
-          "field": "grokerror",
-          "value": "{{ _ingest.on_failure_message }}"
-        }
-      }
-    ],
-    "pattern_definitions": {
-      "TFEID": "%{WORD}-%{WORD}"
-    },
-    "patterns": [
-      "%{DATESTAMP} \\[%{WORD:logtype}\\] \\[%{UUID:refid}\\] Finished policy check %{TFEID:policycheckid} on run %{TFEID:runid}. Result: %{WORD:result}, Passed: %{NUMBER:passed}, Total failed: %{NUMBER:totalfailed}, Hard failed: %{NUMBER:hardfailed}, Soft failed: %{NUMBER:softfailed}, Advisory failed: %{NUMBER:advisoryfailed}, Duration ms: %{BASE16FLOAT:duration}"
-    ]
-  }
+    "grok": {
+        "field": "message",
+        "if": "ctx.containsKey('message') && ctx.message.contains(\"Finished policy check\")",
+        "pattern_definitions": {
+            "TFEID": "%{WORD}-%{WORD}"
+        },
+        "on_failure": [{
+            "set": {
+                "field": "pipelineerror",
+                "value": "Grok failed: {{ _ingest.on_failure_message }}"
+            }
+        }],
+        "patterns": [
+            "%{DATESTAMP} \\[%{WORD:logtype}\\] \\[%{UUID:refid}\\] Finished policy check %{TFEID:policycheckid} on run %{TFEID:runid}. Result: %{WORD:result}, Passed: %{NUMBER:passed}, Total failed: %{NUMBER:totalfailed}, Hard failed: %{NUMBER:hardfailed}, Soft failed: %{NUMBER:softfailed}, Advisory failed: %{NUMBER:advisoryfailed}, Duration ms: %{BASE16FLOAT:duration}"
+        ]
+    }
 }
 ```
 
 ## Full Pipeline
 
-```
-[
-  {
-    "drop": {
-      "if" : "ctx.ident.contains(\"replicated\") || ctx.ident.contains(\"retraced\")"
-    }
-  },
-  {
-    "script": {
-      "lang": "painless",
-      "source": "\n          if (ctx.message.contains(\"{\") && ctx.message.contains(\"}\")) {\n            def first = ctx.message.indexOf('{');\n            def last = ctx.message.lastIndexOf('}');\n            ctx.json = ctx.message.substring(first, last + 1)\n          }\n        ",
-      "if": "ctx.containsKey('message')",
-      "on_failure": [
-        {
-          "set": {
-            "field": "jsonerror",
-            "value": "Failed parsing message field while looking for JSON."
-          }
-        }
-      ]
-    }
-  },
-  {
-    "json": {
-      "field": "json",
-      "add_to_root": true,
-      "if": "ctx.containsKey('json')",
-      "on_failure": [
-        {
-          "set": {
-            "field": "jsonerror",
-            "value": "Failed to parse json field."
-          }
-        }
-      ]
-    }
-  },
-  {
-    "grok": {
-      "field": "message",
-      "if": "ctx.message.contains(\"Finished policy check\")",
-      "on_failure": [
-        {
-          "set": {
-            "field": "grokerror",
-            "value": "{{ _ingest.on_failure_message }}"
-          }
-        }
-      ],
-      "pattern_definitions": {
-        "TFEID": "%{WORD}-%{WORD}"
-      },
-      "patterns": [
-        "%{DATESTAMP} \\[%{WORD:logtype}\\] \\[%{UUID:refid}\\] Finished policy check %{TFEID:policycheckid} on run %{TFEID:runid}. Result: %{WORD:result}, Passed: %{NUMBER:passed}, Total failed: %{NUMBER:totalfailed}, Hard failed: %{NUMBER:hardfailed}, Soft failed: %{NUMBER:softfailed}, Advisory failed: %{NUMBER:advisoryfailed}, Duration ms: %{BASE16FLOAT:duration}"
-      ]
-    }
-  }
-]
-```
+Found [here](./configure/tfe-pipeline.json)
