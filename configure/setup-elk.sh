@@ -14,6 +14,10 @@ done
 echo "[$(date +"%FT%T")]  Kibana is now healthy and reachable"
 echo
 
+echo "[$(date +"%FT%T")]  Start Kibana trial license"
+curl -XPOST "http://localhost:9200/_license/start_trial?acknowledge=true"
+echo
+
 echo "[$(date +"%FT%T")]  Create TFE pipeline in Elastic Search"
 curl -XPUT "http://localhost:9200/_ingest/pipeline/tfe_pipeline" \
   -H 'Content-Type: application/json' \
