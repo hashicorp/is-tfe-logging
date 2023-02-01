@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 # fluentd/Dockerfile
 
 FROM fluent/fluentd:v1.6-debian-1

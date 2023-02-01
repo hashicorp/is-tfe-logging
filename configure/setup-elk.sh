@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 
 # This script will wait for Kibana to be ready then do the initial boostrapping
 # to get Elastic Search to use our TFE Pipeline

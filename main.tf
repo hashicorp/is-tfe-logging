@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource "aws_instance" "elk" {
   instance_type               = var.instance_type
   associate_public_ip_address = var.associate_public_ip_address

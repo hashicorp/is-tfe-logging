@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 resource "aws_security_group" "elk" {
   name   = format("%s-elk-allow", var.namespace)
   vpc_id = var.vpc_id
