@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 variable "namespace" {
   description = "The name to prefix to resources to keep them unique."
   type        = string

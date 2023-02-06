@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 
 # This will create the Index Pattern, Searches, Visuals, and Dashaboards for Kibana
 
