@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 # fluentd/Dockerfile
 
 FROM fluent/fluentd:v1.6-debian-1

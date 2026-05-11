@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 data "aws_ami" "ubuntu" {
   owners      = ["099720109477", "513442679011"]
   most_recent = true

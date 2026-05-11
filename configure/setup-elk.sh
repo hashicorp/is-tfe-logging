@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright IBM Corp. 2020, 2026
+
 
 # This script will wait for Kibana to be ready then do the initial boostrapping
 # to get Elastic Search to use our TFE Pipeline

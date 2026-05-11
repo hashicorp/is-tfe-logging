@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 output "dns" {
   description = "DNS of fluentd."
   value = {
