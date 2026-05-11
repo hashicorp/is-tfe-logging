@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 logging.quiet: true
 server.host: 0.0.0.0
 elasticsearch.hosts: ["http://elasticsearch:9200"]

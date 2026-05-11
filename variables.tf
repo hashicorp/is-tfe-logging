@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 variable "namespace" {
   description = "The name to prefix to resources to keep them unique."
   type        = string

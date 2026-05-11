@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright IBM Corp. 2020, 2026
+
 
 # This will create the Index Pattern, Searches, Visuals, and Dashaboards for Kibana
 

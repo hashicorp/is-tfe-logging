@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 resource "aws_security_group" "elk" {
   name   = format("%s-elk-allow", var.namespace)
   vpc_id = var.vpc_id

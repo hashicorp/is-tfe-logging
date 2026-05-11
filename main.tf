@@ -1,3 +1,5 @@
+# Copyright IBM Corp. 2020, 2026
+
 resource "aws_instance" "elk" {
   instance_type               = var.instance_type
   associate_public_ip_address = var.associate_public_ip_address
